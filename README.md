@@ -195,10 +195,3 @@ python3 statistical_analysis.py
 - Tek yonlu ANOVA (rota bazinda)
 - Cohen's d etki buyuklugu
 
-## Yazar
-
-- Ad Soyad: [ADINIZ SOYADINIZ]
-- ORCID: [ORCID NUMARANIZ]
-- Universite: [UNIVERSITE ADI]
-- Enstitu / Bolum: [ENSTITU / BOLUM]
-- E-posta: [E-POSTA]
