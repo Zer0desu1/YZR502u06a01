@@ -1,0 +1,44 @@
+<launch>
+
+  <arg name="model" default="burger" doc="TurtleBot3 modeli (burger/waffle/waffle_pi)"/>
+  <arg name="map_file" default="$(find turtlebot3_navigation)/maps/map.yaml" doc="Harita dosyasi"/>
+  <arg name="global_planner" default="navfn/NavfnROS" doc="Kuresel planlayici (navfn/NavfnROS, global_planner/GlobalPlanner)"/>
+  <arg name="local_planner" default="dwa_local_planner/DWAPlannerROS" doc="Yerel planlayici (dwa_local_planner/DWAPlannerROS, teb_local_planner/TebLocalPlannerROS)"/>
+  <arg name="sim_time" default="1.5" doc="DWA sim_time parametresi"/>
+  <arg name="path_distance_bias" default="0.5" doc="DWA path_distance_bias parametresi"/>
+  <arg name="open_rviz" default="true"/>
+
+  <env name="TURTLEBOT3_MODEL" value="$(arg model)"/>
+
+  <node pkg="map_server" type="map_server" name="map_server" args="$(arg map_file)"/>
+
+  <include file="$(find turtlebot3_navigation)/launch/amcl.launch">
+    <arg name="initial_pose_x" value="-2.0"/>
+    <arg name="initial_pose_y" value="-0.5"/>
+    <arg name="initial_pose_a" value="0.0"/>
+  </include>
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+
+    <param name="base_global_planner" value="$(arg global_planner)"/>
+
+    <param name="base_local_planner" value="$(arg local_planner)"/>
+
+    <rosparam file="$(find ros_navigation)/param/costmap_common_params.yaml" command="load" ns="global_costmap"/>
+    <rosparam file="$(find ros_navigation)/param/costmap_common_params.yaml" command="load" ns="local_costmap"/>
+    <rosparam file="$(find ros_navigation)/param/local_costmap_params.yaml" command="load" ns="local_costmap"/>
+    <rosparam file="$(find ros_navigation)/param/global_costmap_params.yaml" command="load" ns="global_costmap"/>
+
+    <rosparam file="$(find ros_navigation)/param/dwa_local_planner_params.yaml" command="load"/>
+    <param name="DWAPlannerROS/sim_time" value="$(arg sim_time)"/>
+    <param name="DWAPlannerROS/path_distance_bias" value="$(arg path_distance_bias)"/>
+
+    <rosparam file="$(find ros_navigation)/param/teb_local_planner_params.yaml" command="load" if="$(eval arg('local_planner') == 'teb_local_planner/TebLocalPlannerROS')"/>
+
+    <rosparam file="$(find ros_navigation)/param/move_base_params.yaml" command="load"/>
+  </node>
+
+  <node pkg="rviz" type="rviz" name="rviz" required="true"
+        args="-d $(find turtlebot3_navigation)/rviz/turtlebot3_navigation.rviz"
+        if="$(arg open_rviz)"/>
+</launch>
